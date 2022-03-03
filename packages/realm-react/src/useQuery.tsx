@@ -18,7 +18,7 @@
 
 import Realm from "realm";
 import { useEffect, useReducer, useMemo } from "react";
-import { cachedCollection } from "./cachedCollection";
+import { createCachedCollection } from "./cachedCollection";
 
 /**
  * Generates the `useQuery` hook from a given `useRealm` hook.
@@ -32,7 +32,7 @@ export function createUseQuery(useRealm: () => Realm) {
     const realm = useRealm();
     const [, forceRerender] = useReducer((x) => x + 1, 0);
     const { collection, tearDown } = useMemo(
-      () => cachedCollection({ collection: realm.objects(type), updateCallback: forceRerender }),
+      () => createCachedCollection({ collection: realm.objects(type), updateCallback: forceRerender }),
       [type, realm],
     );
 
@@ -73,9 +73,7 @@ export function createUseQuery(useRealm: () => Realm) {
     // Invoke the tearDown of the cachedCollection when useQuery is unmounted
 >>>>>>> andrew/realmreact-docs
     useEffect(() => {
-      return () => {
-        tearDown();
-      };
+      return tearDown;
     }, [tearDown]);
 
     // This makes sure the collection has a different reference on a rerender
